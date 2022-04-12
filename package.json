@@ -136,7 +136,7 @@
     "typeorm": "0.2.18",
     "uuid": "3.3.2",
     "winston": "2.4.5",
-    "ws": "6.1.0"
+    "ws": "6.2.2"
   },
   "resolutions": {
     "jquery": "2.2.1",
