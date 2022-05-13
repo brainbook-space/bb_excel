@@ -67,3 +67,7 @@ jspm_packages/
 .env
 
 sandbox_venv3/
+build/
+dist/
+grist-sessions.db
+landing.db

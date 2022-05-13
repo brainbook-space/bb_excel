@@ -55,7 +55,7 @@ def get_grist_type(col_type):
   arg = col_type_split[1] if len(col_type_split) > 1 else ''
   arg = arg.strip().replace("'", "\\'")
 
-  return "grist.%s(%s)" % (typename, ("'%s'" % arg) if arg else '')
+  return "%s(%s)" % (typename, ("'%s'" % arg) if arg else '')
 
 
 class GenCode(object):
@@ -97,7 +97,7 @@ class GenCode(object):
 
     decorator = ''
     if include_type and col_info.type != 'Any':
-      decorator = '@grist.formulaType(%s)\n' % get_grist_type(col_info.type)
+      decorator = '@formulaType(%s)\n' % get_grist_type(col_info.type)
     return textbuilder.Combiner(['\n' + decorator + decl, indent(body), '\n'])
 
 
@@ -134,7 +134,7 @@ class GenCode(object):
     columns = sorted(six.itervalues(table_info.columns), key=lambda c: c.isFormula)
     if filter_for_user:
       columns = [c for c in columns if is_visible_column(c.colId)]
-    parts = ["@grist.UserTable\nclass %s:\n" % table_id]
+    parts = ["@UserTable\nclass %s:\n" % table_id]
     if source_table_id:
       parts.append(indent(textbuilder.Text("_summarySourceTable = %r\n" % source_table_id)))
 
@@ -160,9 +160,15 @@ class GenCode(object):
       if source_table_id:
         summary_tables.setdefault(source_table_id, []).append(table_info)
 
-    fullparts = ["import grist\n" +
-                 "from functions import *       # global uppercase functions\n" +
-                 "import datetime, math, re     # modules commonly needed in formulas\n"]
+    fullparts = [
+      "from usertypes import Any, Text, Blob, Int, Bool, Date, DateTime, Numeric, Choice, ChoiceList, Id, Attachments, AltText, ifError\n"+
+      "from usertypes import PositionNumber, ManualSortPos, Reference, ReferenceList, formulaType\n"+
+      "from table import UserTable\n"+
+      "from records import Record, RecordSet\n"+
+      "from column import SafeSortKey\n"+
+      "DOCS = [(__name__, (Record, RecordSet, UserTable)),('lookup', (UserTable.lookupOne, UserTable.lookupRecords))]\n"+
+      "from functions import *       # global uppercase functions\n" +
+      "import datetime, math, re     # modules commonly needed in formulas\n"]
     userparts = fullparts[:]
     for table_info in six.itervalues(schema):
       fullparts.append("\n\n")

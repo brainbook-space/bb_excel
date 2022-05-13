@@ -344,6 +344,7 @@ const spawners = {
   pynbox,             // Grist's "classic" sandbox - python2 within NaCl.
   unsandboxed,        // No sandboxing, straight to host python.
                       // This offers no protection to the host.
+  brainbook,          // For BrainBook
   docker,             // Run sandboxes in distinct docker containers.
   gvisor,             // Gvisor's runsc sandbox.
   macSandboxExec,     // Use "sandbox-exec" on Mac.
@@ -902,4 +903,30 @@ export function createSandbox(defaultFlavorSpec: string, options: ISandboxCreati
     }
   }
   throw new Error('Failed to create a sandbox');
+}
+
+/**
+ * Helper function to run python in brainbook
+ */
+ function brainbook(options: ISandboxOptions): SandboxProcess {
+  const {args: pythonArgs, importDir} = options;
+  const paths = getAbsolutePaths(options);
+
+  const spawnOptions = {
+    stdio: ['pipe', 'pipe', 'pipe'] as 'pipe'[],
+    env: {
+      PYTHONPATH: paths.engine,
+      IMPORTDIR: importDir,
+      ...getInsertedEnv(options),
+      ...getWrappingEnv(options),
+    }
+  };
+  if (!options.minimalPipeMode) {
+    spawnOptions.stdio.push('pipe', 'pipe');
+  }
+  // const command = findPython(options.command, options.preferredPythonVersion);
+  const command = path.join(process.cwd(), 'sandbox', 'dist', 'main')
+  const child = spawn(command, pythonArgs,
+                      {cwd: path.join(process.cwd(), 'sandbox'), ...spawnOptions});
+  return {child, control: new DirectProcessControl(child, options.logMeta)};
 }

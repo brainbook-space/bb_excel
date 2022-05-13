@@ -34,7 +34,7 @@ def get_tz_data():
 # Reads and returns the marshalled tzdata file (produced by sandbox/install_tz.py).
 # The return value is a list of tuples (name, abbrs, offsets, untils).
 def read_tz_raw_data():
-  tzfile = os.path.join(os.path.dirname(__file__), "tzdata.data")
+  tzfile = os.path.join( os.path.expanduser('~'), '.brainbook', "tzdata.data")
   with open(tzfile, "rb") as tzdata:
     return marshal.load(tzdata)
 
