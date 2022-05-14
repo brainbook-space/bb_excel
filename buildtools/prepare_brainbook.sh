@@ -3,12 +3,12 @@
 set -e
 
 echo "Making Python3 sandbox"
-if [ ! -e sandbox_venv3 ]; then
-  python3 -m venv sandbox_venv3
+if [ ! -e sandbox/venv ]; then
+  python3 -m venv sandbox/venv
 fi
 
 echo "Updating Python3 packages"
-sandbox_venv3/bin/pip install --no-deps -r sandbox/requirements3.txt
-echo "Python3 packages ready in sandbox_venv3"
+sandbox/venv/bin/pip install --no-deps -r sandbox/requirements3.txt
+echo "Python3 packages ready in sandbox/venv"
 
-. sandbox_venv3/bin/activate; pip3 install pyinstaller; pyinstaller --onefile sandbox/grist/main.py
+. sandbox/venv/bin/activate; pip3 install pyinstaller; pyinstaller --add-data "sandbox/grist/tzdata.data:." --onefile sandbox/grist/main.py

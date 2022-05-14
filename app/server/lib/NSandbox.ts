@@ -910,7 +910,17 @@ export function createSandbox(defaultFlavorSpec: string, options: ISandboxCreati
  */
  function brainbook(options: ISandboxOptions): SandboxProcess {
   const {args: pythonArgs, importDir} = options;
-  const paths = getAbsolutePaths(options);
+  const sandboxDir = path.join(fs.realpathSync(path.join(process.cwd(), 'dist')),
+                               '..');
+  if (options.importDir) {
+    options.importDir = fs.realpathSync(options.importDir);
+  }
+  const paths =  {
+    sandboxDir,
+    importDir: options.importDir,
+    main: path.join(sandboxDir, 'main'),
+    engine: path.join(sandboxDir, 'dist'),
+  };
 
   const spawnOptions = {
     stdio: ['pipe', 'pipe', 'pipe'] as 'pipe'[],
@@ -925,8 +935,8 @@ export function createSandbox(defaultFlavorSpec: string, options: ISandboxCreati
     spawnOptions.stdio.push('pipe', 'pipe');
   }
   // const command = findPython(options.command, options.preferredPythonVersion);
-  const command = path.join(process.cwd(), 'sandbox', 'dist', 'main')
+  const command = path.join(process.cwd(), 'dist', 'main')
   const child = spawn(command, pythonArgs,
-                      {cwd: path.join(process.cwd(), 'sandbox'), ...spawnOptions});
+                      {cwd: path.join(process.cwd(), 'dist'), ...spawnOptions});
   return {child, control: new DirectProcessControl(child, options.logMeta)};
 }

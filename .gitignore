@@ -66,8 +66,9 @@ jspm_packages/
 # dotenv environment variables file
 .env
 
-sandbox_venv3/
+venv/
 build/
 dist/
+docs/
 grist-sessions.db
 landing.db
